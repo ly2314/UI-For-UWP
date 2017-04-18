@@ -7,6 +7,7 @@ using Telerik.UI.Xaml.Controls.Input.NumericBox;
 using Telerik.UI.Xaml.Controls.Primitives;
 using Windows.System;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Automation;
 using Windows.UI.Xaml.Automation.Peers;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -33,7 +34,7 @@ namespace Telerik.UI.Xaml.Controls.Input
         /// Identifies the <see cref="Value"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty ValueProperty =
-            DependencyProperty.Register(nameof(Value), typeof(Object), typeof(RadNumericBox), new PropertyMetadata(null, OnValueChanged)); // TODO: double? is not supported as PropertyType, check with next WinRT versions
+            DependencyProperty.Register(nameof(Value), typeof(Object), typeof(RadNumericBox), new PropertyMetadata(null, OnValueChanged));
 
         /// <summary>
         /// Identifies the <see cref="AllowNullValue"/> dependency property.
@@ -967,6 +968,12 @@ namespace Telerik.UI.Xaml.Controls.Input
             if (this.GetBindingExpression(ValueProperty)?.ParentBinding.UpdateSourceTrigger == UpdateSourceTrigger.PropertyChanged)
             {
                 this.Value = this.TryParseValue();
+            }
+
+            var peer = FrameworkElementAutomationPeer.FromElement(this.textBox) as NumericTextBoxAutomationPeer;
+            if (peer != null)
+            {
+                peer.RaisePropertyChangedEvent(AutomationElementIdentifiers.ItemStatusProperty, string.Empty, this.TextBox.Text);
             }
         }
 
