@@ -22,6 +22,8 @@ namespace Telerik.UI.Xaml.Controls.Grid.Model
 
         internal InvalidateMeasureFlags pendingMeasureFlags;
 
+        private const int MaxAdditionalStretchColumnsCount = 5;
+
         private static readonly int RowHeightPropertyKey = PropertyKeys.Register(typeof(GridModel), "RowHeight");
 
         private static readonly int DataLoadingModePropertyKey = PropertyKeys.Register(typeof(GridModel), "DataLoadingMode");
@@ -33,6 +35,7 @@ namespace Telerik.UI.Xaml.Controls.Grid.Model
         private RadSize availableSize;
         private RadSize desiredSize;
         private RadSize lastArrangeSize;
+        private int additionalStretchColumnsCount;
 
         public bool RowHeightIsNaN
         {
@@ -239,11 +242,14 @@ namespace Telerik.UI.Xaml.Controls.Grid.Model
             if (this.VisibleColumns.Count() == this.ColumnPool.ViewportItemCount)
             {
                 bool columnsStretched = this.CellsController.TryStretchColumns(this.availableSize.Width);
-                if (columnsStretched)
+                if (columnsStretched && this.additionalStretchColumnsCount < MaxAdditionalStretchColumnsCount)
                 {
+                    this.additionalStretchColumnsCount++;
                     this.GridView.RebuildUI();
                     return finalSize;
                 }
+
+                this.additionalStretchColumnsCount = 0;
             }
 
             var result = this.RowPool.OnArrange(finalSize);
@@ -260,6 +266,7 @@ namespace Telerik.UI.Xaml.Controls.Grid.Model
 
             this.ApplyLayersClipping(result);
 
+            
             return result;
         }
 
@@ -284,13 +291,13 @@ namespace Telerik.UI.Xaml.Controls.Grid.Model
 
             var scrollableElements = this.ColumnPool.GetUnfrozenDisplayedElements();
 
-            if (frozenЕlements.Count() > 0)
+            if (frozenЕlements.Any())
             {
                 frozenColumnsOffset = frozenЕlements.Last().Value.Last().LayoutSlot.Right;
                 frozenRect = new RadRect(0, this.PhysicalVerticalOffset, frozenColumnsOffset, finalSize.Height);
             }
 
-            if (scrollableElements.Count() > 0)
+            if (scrollableElements.Any())
             {
                 var scrollableViewPortRight = scrollableElements.Last().Value.Last().layoutSlot.Right;
                 rect = new RadRect(this.PhysicalHorizontalOffset + frozenColumnsOffset, this.PhysicalVerticalOffset, scrollableViewPortRight, finalSize.Height);
@@ -444,8 +451,8 @@ namespace Telerik.UI.Xaml.Controls.Grid.Model
 
         private void GenerateColumnLineDecorators()
         {
-            var displayedColumns = this.ColumnPool.GetDisplayedElements().ToList();
-            if (displayedColumns.Count > 0)
+            var displayedColumns = this.ColumnPool.GetDisplayedElements().ToArray();
+            if (displayedColumns.Length > 0)
             {
                 var firstPair = displayedColumns[0];
 
@@ -458,7 +465,7 @@ namespace Telerik.UI.Xaml.Controls.Grid.Model
                     this.DecorationsController.RecycleColumnDecoratorBefore(firstPair.Value.Last().ItemInfo.LayoutInfo.Line);
                 }
 
-                var lastPair = displayedColumns[displayedColumns.Count - 1];
+                var lastPair = displayedColumns[displayedColumns.Length - 1];
                 this.DecorationsController.RecycleColumnDecoratorAfter(lastPair.Value.Last().ItemInfo.LayoutInfo.Line);
             }
             else
@@ -495,14 +502,14 @@ namespace Telerik.UI.Xaml.Controls.Grid.Model
 
         private void GenerateRowLineDecorators()
         {
-            var displayedRows = this.RowPool.GetDisplayedElements().ToList();
-            if (displayedRows.Count > 0)
+            var displayedRows = this.RowPool.GetDisplayedElements().ToArray();
+            if (displayedRows.Length > 0)
             {
                 var pair = displayedRows[0];
                 this.DecorationsController.RecycleRowDecoratorBefore(pair.Value.Last().ItemInfo.LayoutInfo.Line);
                 this.FrozenDecorationsController.RecycleRowDecoratorBefore(pair.Value.Last().ItemInfo.LayoutInfo.Line);
 
-                pair = displayedRows[displayedRows.Count - 1];
+                pair = displayedRows[displayedRows.Length - 1];
                 this.DecorationsController.RecycleRowDecoratorAfter(pair.Value.Last().ItemInfo.LayoutInfo.Line);
                 this.FrozenDecorationsController.RecycleRowDecoratorAfter(pair.Value.Last().ItemInfo.LayoutInfo.Line);
             }
@@ -519,7 +526,7 @@ namespace Telerik.UI.Xaml.Controls.Grid.Model
 
         private double GenerateCellsForReadOnlyRow(int rowSlot, double largestRowElementWidth, IItemInfoNode rowDecorator)
         {
-            this.CellsController.UpdateSlotHeight(rowSlot, largestRowElementWidth);
+            this.CellsController.UpdateSlotHeight(rowSlot, 0, this.HasExpandedRowDetails(rowSlot));
 
             Debug.Assert(rowDecorator != null, "Decorator shoundn't be null");
             bool shouldUpdateColumns = this.CellsController.GenerateCellsForRow(rowDecorator, rowSlot);
@@ -531,7 +538,9 @@ namespace Telerik.UI.Xaml.Controls.Grid.Model
             }
 
             var desiredHeight = this.CellsController.GetSlotHeight(rowSlot);
-            this.rowLayout.RenderInfo.Update(rowSlot, desiredHeight);
+
+            var maxHeight = Math.Max(desiredHeight, largestRowElementWidth);
+            this.rowLayout.RenderInfo.Update(rowSlot, maxHeight);
 
             return desiredHeight;
         }

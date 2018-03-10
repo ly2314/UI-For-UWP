@@ -149,6 +149,12 @@ namespace Telerik.UI.Xaml.Controls.Data
         public static readonly DependencyProperty IncrementalLoadingBufferItemsCountProperty =
             DependencyProperty.Register(nameof(IncrementalLoadingBufferItemsCount), typeof(int), typeof(RadListView), new PropertyMetadata(10, IncrementalLoadingBufferItemsCountChanged));
 
+        /// <summary>
+        /// Identifies the <see cref="DisabledStateOpacity"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty DisabledStateOpacityProperty =
+            DependencyProperty.Register(nameof(DisabledStateOpacity), typeof(double), typeof(RadListView), new PropertyMetadata(0.5));
+
         internal RadListViewItem swipedItem;
         internal bool isActionContentDisplayed;
         internal CurrencyListViewLayer currencyLayerCache;
@@ -209,6 +215,7 @@ namespace Telerik.UI.Xaml.Controls.Data
             this.itemCheckBoxService = new ListViewItemCheckBoxService(this);
             this.animationSurvice = new ListViewAnimationService(this);
             this.DragBehavior = new ListViewDragBehavior(this);
+            this.ScrollToCurrentItemOnTap = true;
 
             this.containerGenerator = new ListViewItemUIContainerGenerator(this);
 
@@ -473,8 +480,32 @@ namespace Telerik.UI.Xaml.Controls.Data
         /// </value>
         public int IncrementalLoadingBufferItemsCount
         {
-            get { return (int)GetValue(IncrementalLoadingBufferItemsCountProperty); }
-            set { this.SetValue(IncrementalLoadingBufferItemsCountProperty, value); }
+            get
+            {
+                return (int)GetValue(IncrementalLoadingBufferItemsCountProperty);
+            }
+            set
+            {
+                this.SetValue(IncrementalLoadingBufferItemsCountProperty, value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the value of the opacity used when the ListView is disabled.
+        /// </summary>
+        /// <value>
+        /// The value of the opacity used when the ListView is disabled.
+        /// </value>
+        public double DisabledStateOpacity
+        {
+            get
+            {
+                return (double)GetValue(DisabledStateOpacityProperty);
+            }
+            set
+            {
+                this.SetValue(DisabledStateOpacityProperty, value);
+            }
         }
 
         /// <summary>
@@ -632,6 +663,11 @@ namespace Telerik.UI.Xaml.Controls.Data
                 return this.Visibility == Visibility.Visible;
             }
         }
+
+        /// <summary>
+        /// Gets or sets if the listView should scroll to the current item on tap
+        /// </summary>
+        protected bool ScrollToCurrentItemOnTap { get; set; }
 
         internal ListViewDragBehavior DragBehavior
         {

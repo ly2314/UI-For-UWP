@@ -74,7 +74,7 @@ namespace Telerik.UI.Xaml.Controls.Data
         internal void OnItemTap(ItemTapContext tapContext)
         {
             this.selectionService.Select(tapContext);
-            this.currencyService.ChangeCurrentItem(tapContext.Item, true, true);
+            this.currencyService.ChangeCurrentItem(tapContext.Item, true, this.ScrollToCurrentItemOnTap);
         }
 
         internal void OnItemHold(RadListViewItem radListViewItem, HoldingRoutedEventArgs e)
@@ -83,9 +83,9 @@ namespace Telerik.UI.Xaml.Controls.Data
             DragDrop.StartDrag(radListViewItem, e, DragDropTrigger.Hold);
         }
 
-        internal void OnItemReorderHandlePressed(RadListViewItem radListViewItem, PointerRoutedEventArgs e, object sender)
+        internal void OnItemReorderHandlePressed(RadListViewItem radListViewItem, PointerRoutedEventArgs e, DragDropTrigger trigger, object sender = null)
         {
-            DragDrop.StartDrag(radListViewItem, e, DragDropTrigger.Drag, sender);
+            DragDrop.StartDrag(radListViewItem, e, trigger, sender);
         }
 
         internal void OnItemActionControlTap(RadListViewItem radListViewItem, double offset)

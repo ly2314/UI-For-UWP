@@ -51,7 +51,7 @@
 
     <listView:OrientationToRotateDegreesConverter x:Key="orientationToRotateDegreesConverter" />
     <telerikCore:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-    
+
     <Style TargetType="listView:ItemCheckBoxControl">
         <Setter Property="MinWidth" Value="29" />
         <Setter Property="MinHeight" Value="27" />
@@ -70,7 +70,7 @@
     </Style>
 
     <!--AUTOCOMPLETE EDITOR START-->
-    
+
     <Style TargetType="local:AutoCompleteEditor" BasedOn="{StaticResource RadAutoCompleteBoxStyle}">
         <Setter Property="FontFamily" Value="{StaticResource ContentControlThemeFontFamily}" />
         <Setter Property="Padding" Value="{StaticResource TextControlThemePadding}" />
@@ -165,7 +165,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <!--AUTOCOMPLETE EDITOR END-->
     <!--NUMERIC EDITOR START-->
     <Style TargetType="dataForm:DataFormNumericTextBox">
@@ -269,8 +269,10 @@
     </Style>
 
     <Style TargetType="local:NumericEditor">
-        <Setter Property="Minimum" Value="0"/>
-        <Setter Property="Maximum" Value="100"/>
+        <Setter Property="ButtonsBackground" Value="{ThemeResource TelerikNumericBoxSpinButtonBackgroundBrush}"/>
+        <Setter Property="ButtonsPointerOverBackgroundBrush" Value="{ThemeResource TelerikNumericBoxSpinButtonPointerOverBackgroundBrush}"/>
+        <Setter Property="Minimum" Value="-2147483648"/>
+        <Setter Property="Maximum" Value="2147483648"/>
         <Setter Property="FontFamily" Value="{StaticResource ContentControlThemeFontFamily}"/>
         <Setter Property="FontSize" Value="{StaticResource ControlContentThemeFontSize}" />
         <Setter Property="MinWidth" Value="180"/>
@@ -309,9 +311,15 @@
                             </Grid.ColumnDefinitions>
                             <dataForm:DataFormNumericTextBox ErrorIconStyle="{TemplateBinding ErrorIconStyle}" HasErrors="{TemplateBinding HasErrors}" IconDisplayMode="{TemplateBinding IconDisplayMode}" LabelIconStyle="{TemplateBinding LabelIconStyle}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" x:Name="PART_TextBox" IsReadOnly="{Binding IsEditable, Converter={StaticResource EditableConverter}, RelativeSource={RelativeSource TemplatedParent}}"/>
                             <primitivesCommon:InlineButton x:Name="PART_DecreaseButton" IsRepeatingEnabled="True" Visibility="{TemplateBinding ButtonsVisibility}"
-                                             Grid.Column="1" Style="{TemplateBinding DecreaseButtonStyle}"/>
+                                                           Background="{TemplateBinding ButtonsBackground}" BorderBrush="{TemplateBinding ButtonsBackground}"
+                                                           PointerOverBackgroundBrush="{TemplateBinding ButtonsPointerOverBackgroundBrush}"
+                                                           PointerOverBorderBrush="{TemplateBinding ButtonsPointerOverBackgroundBrush}"
+                                                           Grid.Column="1" Style="{TemplateBinding DecreaseButtonStyle}"/>
                             <primitivesCommon:InlineButton x:Name="PART_IncreaseButton" IsRepeatingEnabled="True"  Visibility="{TemplateBinding ButtonsVisibility}"
-                                             Grid.Column="2" Style="{TemplateBinding IncreaseButtonStyle}"/>
+                                                           Background="{TemplateBinding ButtonsBackground}" BorderBrush="{TemplateBinding ButtonsBackground}"
+                                                           PointerOverBackgroundBrush="{TemplateBinding ButtonsPointerOverBackgroundBrush}"
+                                                           PointerOverBorderBrush="{TemplateBinding ButtonsPointerOverBackgroundBrush}"
+                                                           Grid.Column="2" Style="{TemplateBinding IncreaseButtonStyle}"/>
                         </Grid>
                         <ContentControl x:Name="Watermark" Visibility="Collapsed" IsTabStop="False" IsHitTestVisible="False" Content="{TemplateBinding Watermark}" ContentTemplate="{TemplateBinding WatermarkTemplate}"
                             Foreground="{ThemeResource TelerikNumericBoxWatermarkForegroundBrush}" Padding="4,0,0,2" Margin="{TemplateBinding Padding}" Grid.Row="1" VerticalAlignment="Center"/>
@@ -724,21 +732,21 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="listView:RadListViewItem">
-                    <Grid x:Name="grid" Background="{TemplateBinding Background}" Margin="{TemplateBinding Margin}">
+                    <Grid>
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
                                 <VisualState x:Name="Normal" />
                                 <!--<VisualState x:Name="PointerOver">
-									<Storyboard>
-										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="border" Storyboard.TargetProperty="BorderBrush">
-											<DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource TelerikHighlightBrush}" />
-										</ObjectAnimationUsingKeyFrames>
-									</Storyboard>
-								</VisualState>-->
+                                <Storyboard>
+                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="border" Storyboard.TargetProperty="BorderBrush">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource TelerikHighlightBrush}" />
+                                </ObjectAnimationUsingKeyFrames>
+                                </Storyboard>
+                                </VisualState>-->
                                 <VisualState x:Name="Disabled">
                                     <Storyboard>
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="grid" Storyboard.TargetProperty="Opacity">
-                                            <DiscreteObjectKeyFrame KeyTime="0" Value="0.5" />
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding DisabledStateOpacity, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
                                         </ObjectAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </VisualState>
@@ -776,6 +784,7 @@
                                 <VisualState x:Name="ReorderDisabled" />
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
+                        <Grid x:Name="grid" Background="{TemplateBinding Background}" Margin="{TemplateBinding Margin}">
                             <ContentControl x:Name="PART_Content" FontSize="{TemplateBinding FontSize}" Foreground="{TemplateBinding Foreground}" Margin="{TemplateBinding Padding}" 
                                             VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" 
                                             HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" 
@@ -842,6 +851,7 @@
                                 </BitmapIcon.RenderTransform>
                             </BitmapIcon>
                         </Grid>
+                    </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

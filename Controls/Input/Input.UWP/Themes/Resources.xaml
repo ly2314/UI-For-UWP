@@ -147,20 +147,6 @@
                         </Storyboard>
                     </VisualState>
                 </VisualStateGroup>
-                <VisualStateGroup x:Name="ButtonStates">
-                    <VisualState x:Name="ButtonVisible">
-                        <Storyboard>
-                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility" Storyboard.TargetName="DeleteButton">
-                                <DiscreteObjectKeyFrame KeyTime="0">
-                                    <DiscreteObjectKeyFrame.Value>
-                                        <Visibility>Visible</Visibility>
-                                    </DiscreteObjectKeyFrame.Value>
-                                </DiscreteObjectKeyFrame>
-                            </ObjectAnimationUsingKeyFrames>
-                        </Storyboard>
-                    </VisualState>
-                    <VisualState x:Name="ButtonCollapsed"/>
-                </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>
             <Border x:Name="BackgroundElement" Background="{TemplateBinding Background}" Grid.ColumnSpan="2" Margin="{TemplateBinding BorderThickness}"/>
             <Border x:Name="BorderElement" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Grid.ColumnSpan="2"/>
@@ -177,7 +163,7 @@
                           VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}"
                           AutomationProperties.AccessibilityView="Raw"
                           ZoomMode="Disabled"/>
-            <Button x:Name="DeleteButton" 
+            <Button x:Name="PART_DeleteButton" 
                     BorderThickness="{TemplateBinding BorderThickness}" 
                     Grid.Column="1" 
                     FontSize="{TemplateBinding FontSize}" 
@@ -232,10 +218,10 @@
                     <VisualState x:Name="Selected">
                         <Storyboard Duration="0">
                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="fill" Storyboard.TargetProperty="Fill">
-                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikDateTimePickerSelectorItemSelectedBackgroundBrush}" />
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=SelectedBackground}" />
                             </ObjectAnimationUsingKeyFrames>
                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="contentPresenter" Storyboard.TargetProperty="Foreground">
-                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikDateTimePickerSelectorItemSelectedForegroundBrush}" />
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=SelectedForeground}" />
                             </ObjectAnimationUsingKeyFrames>
                         </Storyboard>
                     </VisualState>
@@ -277,6 +263,8 @@
     </ControlTemplate>
 
     <Style TargetType="localDateTime:DateTimeList" x:Key="DateTimeListStyle">
+        <Setter Property="SelectedBackground" Value="{ThemeResource TelerikDateTimePickerSelectorItemSelectedBackgroundBrush}"/>
+        <Setter Property="SelectedForeground" Value="{ThemeResource TelerikDateTimePickerSelectorItemSelectedForegroundBrush}"/>
         <Setter Property="ItemTemplate">
             <Setter.Value>
                 <DataTemplate>

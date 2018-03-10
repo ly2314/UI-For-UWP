@@ -153,6 +153,7 @@
     <Compile Include="Examples\Calendar\Styling.xaml.cs">
       <DependentUpon>Styling.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Examples\Chart\AnimationContainerVisualsFactory.cs" />
     <Compile Include="Examples\Chart\Annotations_Custom.xaml.cs">
       <DependentUpon>Annotations_Custom.xaml</DependentUpon>
     </Compile>
@@ -210,6 +211,7 @@
     <Compile Include="Examples\Chart\SelectionBehavior.xaml.cs">
       <DependentUpon>SelectionBehavior.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Examples\Chart\SeriesAnimationsHelper.cs" />
     <Compile Include="Examples\Chart\TooltipBehavior.xaml.cs">
       <DependentUpon>TooltipBehavior.xaml</DependentUpon>
     </Compile>
@@ -273,6 +275,13 @@
     <Compile Include="Examples\Grid\ColumnResizing.xaml.cs">
       <DependentUpon>ColumnResizing.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Examples\Grid\CustomRatingColumn\CustomFilteringControl\DataGridCustomFilteringControl.cs" />
+    <Compile Include="Examples\Grid\CustomRatingColumn\CustomRatingColumn.xaml.cs">
+      <DependentUpon>CustomRatingColumn.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Examples\Grid\CustomRatingColumn\DataGridRatingColumn.cs" />
+    <Compile Include="Examples\Grid\CustomRatingColumn\Item.cs" />
+    <Compile Include="Examples\Grid\CustomRatingColumn\ViewModel.cs" />
     <Compile Include="Examples\Grid\EditMode.xaml.cs">
       <DependentUpon>EditMode.xaml</DependentUpon>
     </Compile>
@@ -662,6 +671,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Examples\Grid\CustomRatingColumn\CustomRatingColumn.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Examples\Grid\EditMode.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -819,6 +832,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MainPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Examples\Grid\CustomRatingColumn\CustomFilteringControl\DataGridCustomFilteringControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

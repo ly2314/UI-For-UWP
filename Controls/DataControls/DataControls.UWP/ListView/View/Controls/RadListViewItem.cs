@@ -6,11 +6,14 @@ using Telerik.UI.Xaml.Controls.Data.ListView.Commands;
 using Telerik.UI.Xaml.Controls.Data.ListView.View.Controls;
 using Telerik.UI.Xaml.Controls.Primitives;
 using Telerik.UI.Xaml.Controls.Primitives.DragDrop;
+using Windows.Devices.Input;
 using Windows.Foundation;
 using Windows.System;
+using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Automation.Peers;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 
 namespace Telerik.UI.Xaml.Controls.Data.ListView
@@ -36,7 +39,13 @@ namespace Telerik.UI.Xaml.Controls.Data.ListView
         /// </summary>
         public static readonly DependencyProperty OrientationProperty =
             DependencyProperty.Register(nameof(Orientation), typeof(Orientation), typeof(RadListViewItem), new PropertyMetadata(Orientation.Vertical));
-        
+
+        /// <summary>
+        /// Identifies the <see cref="DisabledStateOpacity"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty DisabledStateOpacityProperty =
+            DependencyProperty.Register(nameof(DisabledStateOpacity), typeof(double), typeof(RadListViewItem), new PropertyMetadata(0.5));
+
         internal bool isDraggedForAction = false;
         internal RadListViewItem dragVisual;
         internal Size lastDesiredSize = Size.Empty;
@@ -55,6 +64,7 @@ namespace Telerik.UI.Xaml.Controls.Data.ListView
 
         private bool isSelectedCache;
         private Orientation orientationCache = Orientation.Vertical;
+        private RadListView listView;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RadListViewItem" /> class.
@@ -124,6 +134,24 @@ namespace Telerik.UI.Xaml.Controls.Data.ListView
             }
         }
 
+        /// <summary>
+        /// Gets or sets the value of the opacity used when the ListView is disabled.
+        /// </summary>
+        /// <value>
+        /// The value of the opacity used when the ListView is disabled.
+        /// </value>
+        public double DisabledStateOpacity
+        {
+            get
+            {
+                return (double)GetValue(DisabledStateOpacityProperty);
+            }
+            set
+            {
+                this.SetValue(DisabledStateOpacityProperty, value);
+            }
+        }
+
         Rect IArrangeChild.LayoutSlot
         {
             get
@@ -132,7 +160,21 @@ namespace Telerik.UI.Xaml.Controls.Data.ListView
             }
         }
 
-        internal RadListView ListView { get; set; }
+        internal RadListView ListView
+        {
+            get
+            {
+                return this.listView;
+            }
+            set
+            {
+                if (this.listView != value)
+                {
+                    this.listView = value;
+                    this.BindToListViewProperties();
+                }
+            }
+        }
 
         internal IListView Owner
         {
@@ -180,7 +222,7 @@ namespace Telerik.UI.Xaml.Controls.Data.ListView
             return isInvalidated;
         }
 
-        internal void PrepareSwipeDragHandles()
+        protected internal void PrepareSwipeDragHandles()
         {
             if (this.IsActionOnSwipeEnabled)
             {
@@ -324,19 +366,31 @@ namespace Telerik.UI.Xaml.Controls.Data.ListView
 
             this.PrepareReorderHandle();
 
+            this.firstHandle = this.GetTemplateChild("PART_FirstHandle") as Border;
+            this.secondHandle = this.GetTemplateChild("PART_SecondHandle") as Border;
+
             this.PrepareSwipeDragHandles();
             this.ChangeVisualState();
+        }
+
+        private void BindToListViewProperties()
+        {
+            if (this.ListView == null)
+            {
+                return;
+            }
+
+            Binding binding = new Binding();
+            binding.Path = new PropertyPath(nameof(this.DisabledStateOpacity));
+            binding.Source = this.ListView;
+
+            this.SetBinding(RadListViewItem.DisabledStateOpacityProperty, binding);
         }
 
         private void PrepareFirstSwipeHandle(bool isVisible)
         {
             if (isVisible)
             {
-                if (this.firstHandle == null)
-                {
-                    this.firstHandle = this.GetTemplateChild("PART_FirstHandle") as Border;
-                }
-
                 if (this.firstHandle != null)
                 {
                     this.firstHandle.ManipulationMode = ManipulationModes.None;
@@ -356,11 +410,6 @@ namespace Telerik.UI.Xaml.Controls.Data.ListView
         {
             if (isVisible)
             {
-                if (this.secondHandle == null)
-                {
-                    this.secondHandle = this.GetTemplateChild("PART_SecondHandle") as Border;
-                }
-
                 if (this.secondHandle != null)
                 {
                     this.secondHandle.ManipulationMode = ManipulationModes.None;
@@ -386,7 +435,7 @@ namespace Telerik.UI.Xaml.Controls.Data.ListView
                     this.reorderHandle = this.GetTemplateChild("PART_ReorderHandle") as FrameworkElement;
                 }
 
-                if(this.reorderHandle != null)
+                if (this.reorderHandle != null)
                 {
                     this.reorderHandle.PointerPressed += OnReorderHandlePointerPressed;
                 }
@@ -412,6 +461,20 @@ namespace Telerik.UI.Xaml.Controls.Data.ListView
         {
             base.OnPointerEntered(e);
             this.ChangeVisualState(true);
+        }
+
+        protected override void OnPointerMoved(PointerRoutedEventArgs e)
+        {
+            base.OnPointerMoved(e);
+            PointerPoint pointerPoint = e.GetCurrentPoint(this);
+            if (!this.isDragContent && pointerPoint.Properties.IsLeftButtonPressed)
+            {
+                var source = e.OriginalSource;
+                if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && source != this.firstHandle && source != this.secondHandle)
+                {
+                    this.listView.OnItemReorderHandlePressed(this, e, DragDropTrigger.MouseDrag, null);
+                }
+            }
         }
 
         /// <inheritdoc/>
@@ -593,7 +656,7 @@ namespace Telerik.UI.Xaml.Controls.Data.ListView
 
         private void OnReorderHandlePointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            this.ListView.OnItemReorderHandlePressed(this, e, sender);
+            this.ListView.OnItemReorderHandlePressed(this, e, DragDropTrigger.Drag, sender);
         }
 
         private void UpdateActionContentClipping(double offset)

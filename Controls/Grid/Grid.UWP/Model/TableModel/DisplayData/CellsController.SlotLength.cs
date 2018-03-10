@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Telerik.Data.Core.Layouts;
 using Telerik.UI.Xaml.Controls.Grid.Model;
 using Telerik.UI.Xaml.Controls.Primitives;
 
@@ -103,15 +104,18 @@ namespace Telerik.UI.Xaml.Controls.Grid
 
         internal virtual double GetSlotHeight(int cellSlot)
         {
+            double height = 0;
+
             // TODO: First check for Resized RowHeight, then for RowHeight.
-            if (this.table.RowHeightIsNaN)
+            if (this.table.RowHeightIsNaN || this.table.HasExpandedRowDetails(cellSlot))
             {
-                return this.RowPool.RenderInfo.ValueForIndex(cellSlot, false);
+                height = this.RowPool.RenderInfo.ValueForIndex(cellSlot, false);
             }
             else
             {
-                return this.table.RowHeight;
+                height = this.table.RowHeight;
             }
+            return height;
         }
 
         /// <summary>
@@ -120,19 +124,24 @@ namespace Telerik.UI.Xaml.Controls.Grid
         /// <param name="cellSlot">The slot which Height will be updated.</param>
         /// <param name="cellHeight">The new Height.</param>
         /// <returns>Returns true only if Slot Height was Updated (e.g. Smaller then the new Height).</returns>
-        internal bool UpdateSlotHeight(int cellSlot, double cellHeight)
+        internal bool UpdateSlotHeight(int cellSlot, double cellHeight, bool forceUpdate = true)
         {
-            if (this.table.RowHeightIsNaN && !this.RowPool.IsItemCollapsed(cellSlot))
+            if (this.table.RowHeightIsNaN && !this.RowPool.IsItemCollapsed(cellSlot) || this.table.HasExpandedRowDetails(cellSlot))
             {
                 var renderInfo = this.RowPool.RenderInfo;
                 var currentHeight = renderInfo.ValueForIndex(cellSlot, false);
-
-                bool isLessThan = GridModel.DoubleArithmetics.IsLessThan(currentHeight, cellHeight);
-
-                if (GridModel.DoubleArithmetics.IsZero(currentHeight) || isLessThan)
+                
+                if (GridModel.DoubleArithmetics.IsZero(currentHeight))
                 {
                     renderInfo.Update(cellSlot, cellHeight);
-                    return isLessThan;
+                    return true;
+                }
+
+                var shouldUpdateHeight = forceUpdate ? !GridModel.DoubleArithmetics.AreClose(currentHeight, cellHeight) : GridModel.DoubleArithmetics.IsLessThan(currentHeight, cellHeight);
+                if (shouldUpdateHeight)
+                {
+                    renderInfo.Update(cellSlot, cellHeight);
+                    return true;
                 }
             }
 
